@@ -1,5 +1,5 @@
 <?php
-include 'database.php';
+include 'soap.php';
 
 // post data 
 $username=$_POST["username"];
@@ -7,6 +7,8 @@ $password=$_POST["password"];
 $fullname=$_POST["nama"];
 $birthdate=$_POST["tgl"];
 $email=$_POST["email"];
+$about=$_POST["about"];
+$gender=$_POST["sex"];
 if ($_FILES["avatar"]["error"] > 0) {
 	$avatar="images/niouw.JPG";
 } else {
@@ -16,17 +18,16 @@ if ($_FILES["avatar"]["error"] > 0) {
 		$avatar="images/niouw.JPG";
 	}
 }
-if ($_POST["sex"]=="male") {
-	$gender='M';
-} else {
-	$gender='F';
-}
-$about=$_POST["about"];
 
-mysqli_query($con,"INSERT INTO `members` (username,password,fullname,birthdate,email,avatar,gender,about) 
-				VALUES ('$username',sha1('$password'),'$fullname','$birthdate','$email','$avatar','$gender','$about')");
-mysqli_close($con);
+$result = $client->call('registerGan',array('userReg' => $username, 'pwdReg' => $password,'fullnameReg' => $fullname, 'birthReg' => $birthdate, 'emailReg' => $email, 'avatarReg' => $avatar, 'genderReg' => $gender, 'aboutReg' => $about));
 
-header("location:index.php?status=4");
+// header("location:index.php?status=4");
+echo '<h2>Request</h2>';
+echo '<pre>'.htmlspecialchars($client->request, ENT_QUOTES).'</pre>';
+echo '<h2>Response</h2>';
+echo '<pre>'.htmlspecialchars($client->response, ENT_QUOTES).'</pre>';
+
+echo '<h2>Debug</h2>';
+echo '<pre>'.htmlspecialchars($client->debug_str, ENT_QUOTES).'</pre>';
 
 ?>

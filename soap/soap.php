@@ -22,9 +22,61 @@ $server->register('insertCategory',
 	'Insert Category'
 );
 
+$server->register('registerGan',
+        array('userReg'=>'xsd:string', 'pwdReg'=>'xsd:string','fullnameReg'=>'xsd:string','birthReg'=>'xsd:string','emailReg'=>'xsd:string','avatarReg'=>'xsd:string','genderReg'=>'xsd:string','aboutReg'=>'xsd:string'),
+        array('return' => 'xsd:string'), 
+        'urn:soap', 
+        'urn:soap#registerGan', 
+        'rpc', 
+        'encoded', 
+        'Register'        
+        );
+
+$server->register('taskGan',
+        array('idTaskGan'=>'xsd:string', 'judulTask'=>'xsd:string','creatorTask'=>'xsd:string','deadlineTask'=>'xsd:string','timeTask'=>'xsd:string','timestampTask'=>'xsd:string'),
+        array('return' => 'xsd:string'), 
+        'urn:soap', 
+        'urn:soap#taskGan', 
+        'rpc', 
+        'encoded', 
+        'Task'        
+        );
+
+$server->register('commentGan',
+        array('memberComment'=>'xsd:string', 'taskComment'=>'xsd:string','timestampComment'=>'xsd:string','komentarComment'=>'xsd:string'),
+        array('return' => 'xsd:string'), 
+        'urn:soap', 
+        'urn:soap#taskGan', 
+        'rpc', 
+        'encoded', 
+        'Task'        
+        );
+
 function hello($name)
 {
 	return 'Hello, '. $name;
+}
+
+function registerGan($userReg,$pwdReg,$fullnameReg,$birthReg,$emailReg,$avatarReg,$genderReg,$aboutReg){
+    include 'database.php';
+
+    // post data 
+    $username=$userReg;
+    $password=$pwdReg;
+    $fullname=$fullnameReg;
+    $birthdate=$birthReg;
+    $email=$emailReg;
+    $avatar=$avatarReg;
+    if ($genderReg=="male") {
+        $gender='M';
+    } else {
+        $gender='F';
+    }
+    $about=$aboutReg;
+
+    mysqli_query($con,"INSERT INTO `members` (username,password,fullname,birthdate,email,avatar,gender,about) 
+                    VALUES ('$username',sha1('$password'),'$fullname','$birthdate','$email','$avatar','$gender','$about')");
+    mysqli_close($con);
 }
 
 function insertCategory($name, $user, $id)
@@ -66,6 +118,147 @@ function insertCategory($name, $user, $id)
 
 	return 'Add category success';
 }
+
+function taskGan($idTaskGan,$judulTask,$creatorTask,$deadlineTask, $timeTask,$timestampTask){
+     include 'database.php';
+    //$creator = $_SESSION['id'];
+
+    $mem = "SELECT * FROM tasks WHERE creator='{$idTaskGan}'";
+        $getMem = mysqli_query($con, $mem);
+        $resulta = mysqli_fetch_array($getMem);
+        $idMember = $resulta['name'];   
+
+    mysqli_query($con, "INSERT INTO tasks (
+                    name,
+                    creator,
+                    deadline,
+                    category,
+                    timestamp
+                    )
+                    VALUES (
+                        '$judulTask',
+                        '$creatorTask',
+                        '$deadline $timeTask',
+                        '$idTaskGan',
+                        '$timestampTask'
+                    )");
+
+    $TaskId = "SELECT id FROM tasks WHERE name='{$judulTask}'";
+    $GetTaskId = mysqli_query($con, $TaskId);
+    $result = mysqli_fetch_array($GetTaskId);
+    $idTask = $result['id'];
+   // echo "<br><br>id task : ".$idTask."<br>";
+
+    $member = array();
+    $member = explode(",", $asignee);
+    $i=1;
+    $j=count($member);
+
+   // echo "banyak asignee : ".$j."<br>";
+
+    while($i<=$j)
+      {
+        $k=$i-1;
+        $member[$k] = trim($member[$k]," ");	
+        $mem = "SELECT * FROM members WHERE username='{$member[$k]}'";
+        $getMem = mysqli_query($con, $mem);
+        $resulta = mysqli_fetch_array($getMem);
+        $idMember = $resulta['id'];
+        echo "<br>nama member : ".$member[$k]." id : ".$idMember;
+        mysqli_query($con, "INSERT INTO assignees (
+                    member,
+                    task,
+                    finished
+                    )
+                    VALUES (
+                        $idMember,
+                        $idTask,
+                        0
+                    )");
+
+        $i++;
+      }
+
+    mysqli_query($con, "INSERT INTO assignees (
+                    member,
+                    task,
+                    finished
+                    )
+                    VALUES (
+                        $creator,
+                        $idTask,
+                        0
+                    )");
+
+    $tagx = array();
+    $tagx = explode(",", $tag);
+    $i=1;
+    $j=count($member);
+    echo "<br><br>banyak tag [new] : ".$j."<br>";
+
+    while($i<=$j)
+      {
+        $k=$i-1;  
+        echo "tag ke-".$i." : ".$tagx[$k]."<br>";
+        mysqli_query($con, "INSERT INTO tags (
+                    name,
+                    tagged
+                    )
+                    VALUES (
+                        '$tagx[$k]',
+                        '$idTask'
+                    )");
+        $i++;
+      }
+
+    mysqli_query($con, "INSERT INTO attachments (path,filetype,task) VALUES ('$direktori','$file','$idTask')");
+//    echo "<br>".$direktori;
+//    echo "<br>".$file;
+//    echo "<br>".$idTask;
+
+    header("location:rinciantugas.php?id=".$TaskId);
+    mysqli_close($con);
+}//end taskGan
+
+function commentGan($memberComment,$taskComment,$timestampComment,$komentarComment){
+    
+    include 'database.php';
+    
+    $member=$memberComment;
+    $task=$taskComment;
+    $timestamp=$timestampComment;
+    $komentar=$komentarComment;
+    
+    mysqli_query($con, "INSERT INTO `comments` (member,task,timestamp,comment) 
+				VALUES ($member, $task, '$timestamp', '$komentar')");
+
+    $result7=mysqli_query($con,"SELECT * FROM `comments` WHERE task=$task ORDER BY timestamp DESC");
+    $count_comment = 0;
+    while ($commented = mysqli_fetch_array($result7)) {
+        $comment[$count_comment] = $commented;
+        $id_commenter = $commented['member'];
+        $result8=mysqli_query($con,"SELECT * FROM members WHERE id=$id_commenter");
+        $commenter[$count_comment] = mysqli_fetch_array($result8);
+        $count_comment++;
+    }
+    if ($count_comment > 10) $count_comment = 10;
+    for ($i = 0; $i < $count_comment; $i++) {
+        $current1=$comment[$i];
+        $current2=$commenter[$i];
+        $hasilComment='<div class="komen-avatar"><img src="'.$current2['avatar'].'" height="24"/></div>';
+        $hasilComment+='<div class="komen-nama">'.$current2['fullname'].'</div>';
+        $hasilComment+='<div class="komen-tgl">'.$current1['timestamp'].'</div>';
+        $hasilComment+='<div class="komen-isi">'.$current1['comment'].'</div>';
+        if ($_SESSION['id'] == $current2['id']) {
+            $hasilComment+='<input type="button" name="delete" value="Delete" onclick="delete_comment('.$task.",".$current1['id'].')"/>';
+        }
+        $hasilComment+='<div class="line-konten"></div>';
+    }
+    $hasilComment+='<input type="button" value="More" onclick="comment_more('.$task['id'].',10);this.style.display=\'none\'">';
+    return $hasilComment;
+    mysqli_close($con);
+}
+
 
 $POST_DATA = isset($HTTP_RAW_POST_DATA) ? $HTTP_RAW_POST_DATA : '';
 $server->service($POST_DATA);
