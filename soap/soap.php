@@ -42,6 +42,16 @@ $server->register('taskGan',
         'Task'        
         );
 
+$server->register('commentGan',
+        array('memberComment'=>'xsd:string', 'taskComment'=>'xsd:string','timestampComment'=>'xsd:string','komentarComment'=>'xsd:string'),
+        array('return' => 'xsd:string'), 
+        'urn:soap', 
+        'urn:soap#taskGan', 
+        'rpc', 
+        'encoded', 
+        'Task'        
+        );
+
 function hello($name)
 {
 	return 'Hello, '. $name;
@@ -207,7 +217,47 @@ function taskGan($idTaskGan,$judulTask,$creatorTask,$deadlineTask, $timeTask,$ti
 //    echo "<br>".$idTask;
 
     header("location:rinciantugas.php?id=".$TaskId);
+    mysqli_close($con);
 }//end taskGan
+
+function commentGan($memberComment,$taskComment,$timestampComment,$komentarComment){
+    
+    include 'database.php';
+    
+    $member=$memberComment;
+    $task=$taskComment;
+    $timestamp=$timestampComment;
+    $komentar=$komentarComment;
+    
+    mysqli_query($con, "INSERT INTO `comments` (member,task,timestamp,comment) 
+				VALUES ($member, $task, '$timestamp', '$komentar')");
+
+    $result7=mysqli_query($con,"SELECT * FROM `comments` WHERE task=$task ORDER BY timestamp DESC");
+    $count_comment = 0;
+    while ($commented = mysqli_fetch_array($result7)) {
+        $comment[$count_comment] = $commented;
+        $id_commenter = $commented['member'];
+        $result8=mysqli_query($con,"SELECT * FROM members WHERE id=$id_commenter");
+        $commenter[$count_comment] = mysqli_fetch_array($result8);
+        $count_comment++;
+    }
+    if ($count_comment > 10) $count_comment = 10;
+    for ($i = 0; $i < $count_comment; $i++) {
+        $current1=$comment[$i];
+        $current2=$commenter[$i];
+        $hasilComment='<div class="komen-avatar"><img src="'.$current2['avatar'].'" height="24"/></div>';
+        $hasilComment+='<div class="komen-nama">'.$current2['fullname'].'</div>';
+        $hasilComment+='<div class="komen-tgl">'.$current1['timestamp'].'</div>';
+        $hasilComment+='<div class="komen-isi">'.$current1['comment'].'</div>';
+        if ($_SESSION['id'] == $current2['id']) {
+            $hasilComment+='<input type="button" name="delete" value="Delete" onclick="delete_comment('.$task.",".$current1['id'].')"/>';
+        }
+        $hasilComment+='<div class="line-konten"></div>';
+    }
+    $hasilComment+='<input type="button" value="More" onclick="comment_more('.$task['id'].',10);this.style.display=\'none\'">';
+    return $hasilComment;
+    mysqli_close($con);
+}
 
 
 $POST_DATA = isset($HTTP_RAW_POST_DATA) ? $HTTP_RAW_POST_DATA : '';
