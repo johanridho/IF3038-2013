@@ -246,15 +246,15 @@ function commentGan($memberComment,$taskComment,$timestampComment,$komentarComme
         $current1=$comment[$i];
         $current2=$commenter[$i];
         $hasilComment='<div class="komen-avatar"><img src="'.$current2['avatar'].'" height="24"/></div>';
-        $hasilComment+='<div class="komen-nama">'.$current2['fullname'].'</div>';
-        $hasilComment+='<div class="komen-tgl">'.$current1['timestamp'].'</div>';
-        $hasilComment+='<div class="komen-isi">'.$current1['comment'].'</div>';
+        $hasilComment.='<div class="komen-nama">'.$current2['fullname'].'</div>';
+        $hasilComment.='<div class="komen-tgl">'.$current1['timestamp'].'</div>';
+        $hasilComment.='<div class="komen-isi">'.$current1['comment'].'</div>';
         if ($_SESSION['id'] == $current2['id']) {
-            $hasilComment+='<input type="button" name="delete" value="Delete" onclick="delete_comment('.$task.",".$current1['id'].')"/>';
+            $hasilComment.='<input type="button" name="delete" value="Delete" onclick="delete_comment('.$task.",".$current1['id'].')"/>';
         }
-        $hasilComment+='<div class="line-konten"></div>';
+        $hasilComment.='<div class="line-konten"></div>';
     }
-    $hasilComment+='<input type="button" value="More" onclick="comment_more('.$task['id'].',10);this.style.display=\'none\'">';
+    $hasilComment.='<input type="button" value="More" onclick="comment_more('.$task['id'].',10);this.style.display=\'none\'">';
     return $hasilComment;
     mysqli_close($con);
 }
