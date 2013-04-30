@@ -26,6 +26,6 @@ $creator = $_SESSION['id'];
 
 $result = $client->call('taskGan',array('idTaskGan'=>$id, 'judulTask'=>$judul,'creatorTask'=>$creator,'deadlineTask'=>$deadline,'timeTask'=>$time,'timestampTask'=>$timestamp));
 
-//header("location:rinciantugas.php?id=".$TaskId);
+header("location:rinciantugas.php?id=".$TaskId);
 
 ?>

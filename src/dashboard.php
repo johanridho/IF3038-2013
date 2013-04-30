@@ -118,6 +118,7 @@ $id = $_SESSION['id'];
 						foreach ($res as $tagged) {
 							$tagatt = explode(" ", $tagged);
 							$tag[$count_tag] = $tagatt[0];
+							$count_tag++;
 						}
 			?>
 			Tag: <strong>
