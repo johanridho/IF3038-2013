@@ -47,15 +47,6 @@ function registerGan($userReg,$pwdReg,$fullnameReg,$birthReg,$emailReg,$avatarRe
     $birthdate=$birthReg;
     $email=$emailReg;
     $avatar=$avatarReg;
-//    if ($_FILES["avatar"]["error"] > 0) {
-//        $avatar="images/niouw.JPG";
-//    } else {
-//        if(move_uploaded_file($_FILES["avatar"]["tmp_name"], "avatars/".$username.".jpg")) {
-//            $avatar="avatars/".$username.".jpg";
-//        } else {
-//            $avatar="images/niouw.JPG";
-//        }
-//    }
     if ($genderReg=="male") {
         $gender='M';
     } else {
