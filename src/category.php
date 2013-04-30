@@ -1,62 +1,39 @@
-<?php 
+<?php
 include 'session.php';
-include 'database.php';
-
-// Connect to server and select databse.
-$con=mysqli_connect($host,$username,$password,$db_name);
-if (mysqli_connect_errno()) {
-	echo "Failed to connect to MySQL: ".mysqli_connect_error();
-}
+include 'soap.php';
 
 foreach ($_POST as $k => $v) {
 	${$k} = $v;
 }
 
-mysqli_query($con, "INSERT INTO categories (
-				name, creator
-				)
-				VALUES (
-					'$category_name', $creator_id
-				)");
-				
-$CatId = "SELECT id FROM categories WHERE name='{$category_name}'";
-$GetCatId = mysqli_query($con, $CatId);
-$result = mysqli_fetch_array($GetCatId);
-$idCategory = $result['id'];
+$result = $client->call('insertCategory',array('name' => $category_name, 'user' => $relateduser,'id' => $creator_id));
+if ($client->fault)
+{
+	echo '<h2>Fault</h2><pre>';
+	print_r($result);
+	echo '<pre>';
+}
+else
+{
+	$err = $client->getError();
+	if ($err)
+	{
+		echo '<h2>Error</h2><pre>'.$err.'</pre>';
+	}
+	else
+	{
+		// echo '<h2>Result</h2><pre>';
+		// print_r($result);
+		// echo '</pre>';
+		header("location:dashboard.php");
+	}
+}
 
-mysqli_query($con, "INSERT INTO editors (
-				member,
-				category
-				)
-				VALUES (
-					$creator_id,
-					'$idCategory'
-				)");
+echo '<h2>Request</h2>';
+echo '<pre>'.htmlspecialchars($client->request, ENT_QUOTES).'</pre>';
+echo '<h2>Response</h2>';
+echo '<pre>'.htmlspecialchars($client->response, ENT_QUOTES).'</pre>';
 
-$member = array();
-$member = explode(",", $relateduser);
-$i=1;
-$j=count($member);
-while($i<=$j)
-  {
-	$k=$i-1;
-  	$member[$k] = trim($member[$k]," ");
-  		
-	$mem = "SELECT * FROM members WHERE username='{$member[$k]}'";
-	$getMem = mysqli_query($con, $mem);
-	$resulta = mysqli_fetch_array($getMem);
-	$idMember = $resulta['id'];
-	
-	mysqli_query($con, "INSERT INTO editors (
-				member,
-				category
-				)
-				VALUES (
-					$idMember,
-					'$idCategory'
-				)");
- 	$i++;
-  }
-mysqli_close($con);
-header("location:dashboard.php");
+echo '<h2>Debug</h2>';
+echo '<pre>'.htmlspecialchars($client->debug_str, ENT_QUOTES).'</pre>';
 ?>
