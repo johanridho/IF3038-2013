@@ -22,9 +22,50 @@ $server->register('insertCategory',
 	'Insert Category'
 );
 
+$server->register('registerGan',
+        array('userReg'=>'xsd:string', 'pwdReg'=>'xsd:string','fullnameReg'=>'xsd:string','birthReg'=>'xsd:string','emailReg'=>'xsd:string','avatarReg'=>'xsd:string','genderReg'=>'xsd:string','aboutReg'=>'xsd:string'),
+        array('return' => 'xsd:string'), 
+        'urn:soap', 
+        'urn:soap#registerGan', 
+        'rpc', 
+        'encoded', 
+        'Register'        
+        );
+
 function hello($name)
 {
 	return 'Hello, '. $name;
+}
+
+function registerGan($userReg,$pwdReg,$fullnameReg,$birthReg,$emailReg,$avatarReg,$genderReg,$aboutReg){
+    include 'database.php';
+
+    // post data 
+    $username=$userReg;
+    $password=$pwdReg;
+    $fullname=$fullnameReg;
+    $birthdate=$birthReg;
+    $email=$emailReg;
+    $avatar=$avatarReg;
+//    if ($_FILES["avatar"]["error"] > 0) {
+//        $avatar="images/niouw.JPG";
+//    } else {
+//        if(move_uploaded_file($_FILES["avatar"]["tmp_name"], "avatars/".$username.".jpg")) {
+//            $avatar="avatars/".$username.".jpg";
+//        } else {
+//            $avatar="images/niouw.JPG";
+//        }
+//    }
+    if ($genderReg=="male") {
+        $gender='M';
+    } else {
+        $gender='F';
+    }
+    $about=$aboutReg;
+
+    mysqli_query($con,"INSERT INTO `members` (username,password,fullname,birthdate,email,avatar,gender,about) 
+                    VALUES ('$username',sha1('$password'),'$fullname','$birthdate','$email','$avatar','$gender','$about')");
+    mysqli_close($con);
 }
 
 function insertCategory($name, $user, $id)
@@ -66,6 +107,9 @@ function insertCategory($name, $user, $id)
 
 	return 'Add category success';
 }
+
+
+
 
 $POST_DATA = isset($HTTP_RAW_POST_DATA) ? $HTTP_RAW_POST_DATA : '';
 $server->service($POST_DATA);
