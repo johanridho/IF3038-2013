@@ -1,6 +1,7 @@
 <?php
 include 'session.php';
-include 'database.php';
+// include 'database.php';
+$rest = "http://phprestsql.ap01.aws.af.cm"
 ?>
 <!DOCTYPE html>
 <html>
@@ -22,9 +23,13 @@ include 'database.php';
 			echo 'DASHBOARD';
 		} else if (strcmp($uri,"rinciantugas.php") == 0) {
 			$id_task= $_GET['id'];
-			$result = mysqli_query($con,"SELECT * FROM `tasks` WHERE id=$id_task");
-			$task = mysqli_fetch_array($result);
-			echo strtoupper($task['name']);
+			// $result = mysqli_query($con,"SELECT * FROM `tasks` WHERE id=$id_task");
+			// $task = mysqli_fetch_array($result);
+			// echo strtoupper($task['name']);
+			$xml = simplexml_load_file("http://phprestsql.ap01.aws.af.cm/tasks?id=".$id_task.".xml");
+			$uri = "http://phprestsql.ap01.aws.af.cm/tasks/".$xml->row[0].".xml";
+			$xml = simplexml_load_file($uri);
+			echo strtoupper((string)$xml->name);
 		} else if (strcmp($uri,"post.php") == 0) {
 			echo 'ADD TASK';
 		} else if (strcmp($uri,"search.php") == 0) {
@@ -41,8 +46,8 @@ include 'database.php';
 		if (strcmp($uri,"profil.php") == 0) {
 			echo "id='profilbackground' onLoad='done_task()'";
 		} else if (strcmp($uri,"dashboard.php") == 0 || strcmp($uri,"search.php") == 0) {
-			$result=mysqli_query($con,"SELECT DISTINCT `category` FROM `tasks`");
-			$cats=mysqli_num_rows($result);
+			// $result=mysqli_query($con,"SELECT DISTINCT `category` FROM `tasks`");
+			// $cats=mysqli_num_rows($result);
 			echo "id='dashboardbackground'";
 		} else if (strcmp($uri,"rinciantugas.php") == 0) {
 			echo "id='rincianbackground' onLoad='done_task()'";

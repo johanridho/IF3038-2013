@@ -7,7 +7,7 @@ $xml = simplexml_load_file($uri);
 if (!isset($xml->row[0]))
 {
 	echo "fail";
-	// header("location:index.php?status=1");
+	header("location:index.php?status=1");
 }
 else
 {
@@ -24,6 +24,6 @@ else
 	$_SESSION['gender'] = (string)$xml->gender;
 	$_SESSION['about'] = (string)$xml->about;
 	echo $_SESSION['myusername'];
-	//header("location:dashboard.php");
+	header("location:dashboard.php");
 }
 ?>

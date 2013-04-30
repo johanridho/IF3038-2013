@@ -1,8 +1,12 @@
 <?php 
 include 'header.php';
 
-$result=mysqli_query($con,"SELECT DISTINCT `category` FROM `tasks`");
-$cats=mysqli_num_rows($result);   
+$xml = simplexml_load_file($rest."/categories.xml");
+$cats = 0;
+foreach ($xml as $child) {
+	$cats++;
+}
+
 
 $id = $_SESSION['id'];
 ?>
@@ -35,30 +39,29 @@ $id = $_SESSION['id'];
 				<a class="close" href="#close"></a>
             </div>
             <?php
-			$result1=mysqli_query($con,"SELECT * FROM `categories` ORDER BY id");
-			while ($cat=mysqli_fetch_array($result1)) {
+			$xml = simplexml_load_file($rest."/categories.xml");
+			foreach ($xml as $child) {
 				$found = false;
-				$cat_id=$cat['id'];
-				$result2=mysqli_query($con,"SELECT * FROM `tasks` WHERE category=$cat_id");
-				while ($task=mysqli_fetch_array($result2)) {
-					$task_id=$task['id'];
-					$result3=mysqli_query($con,"SELECT * FROM `assignees` WHERE member=$id AND task=$task_id");
-					$count=mysqli_num_rows($result3);
-					if ($count == 1) {
+				$cat = simplexml_load_file($rest."/categories/".$child.".xml");
+				$cat_id = $cat->id;
+				$xml2 = simplexml_load_file($rest."/tasks?category=".$cat_id.".xml");
+				foreach ($xml2 as $child2) {
+					$task = simplexml_load_file($rest."/tasks/".$child2.".xml");
+					$task_id = $task->id;
+					$xml3 = simplexml_load_file($rest."/assignees?member=".$id."&task=".$task_id);
+					if (!isset($xml3->row[1])) {
             ?>
-            <br /><div onclick="javascript:gettask(<?php echo $_SESSION['id'];?>,<?php echo $cat['id'];?>);"><a href="#"><?php echo $cat['name'];?></a></div>
+            <br /><div onclick="javascript:gettask(<?php echo $_SESSION['id'];?>,<?php echo $cat->id;?>);"><a href="#"><?php echo $cat->name;?></a></div>
             <?php
-			            $result3 = mysqli_query($con, "SELECT * FROM editors WHERE member=$id AND category=$cat_id");
-			        	$count = mysqli_num_rows($result3);
-			        	if ($count == 1) {
+			         	$xml3 = simplexml_load_file($rest."/editors?member=".$id."&category=".$cat_id.".xml");
+			        	if (!isset($xml3->row[1])) {
         	?>
-            <a href ="post.php?id=<?php echo $cat['id'];?>"><input id ="newtask" type="button" name="Tugas Baru" value="New Task"/></a>
+            <a href ="post.php?id=<?php echo $cat->id;?>"><input id ="newtask" type="button" name="Tugas Baru" value="New Task"/></a>
             <?php
-            				if ($cat['creator'] == $id) 
-            				{
+            				if ($cat->creator == $id) {
             ?>
             <form action="deletecategory.php" method="post">
-            	<input type="hidden" name="id" value="<?php echo $cat['id'];?>" />
+            	<input type="hidden" name="id" value="<?php echo $cat->id;?>" />
             	<input type="submit" value="Delete Category" />
             </form>
             <?php
@@ -71,18 +74,16 @@ $id = $_SESSION['id'];
         			}
         		}
         		if ($found == false) {
-        			$result3 = mysqli_query($con, "SELECT * FROM editors WHERE member=$id AND category=$cat_id");
-        			$count = mysqli_num_rows($result3);
-        			if ($count == 1) {
+        			$xml3 = simplexml_load_file($rest."/editors?member=".$id."&category=".$cat_id.".xml");
+        			if (!isset($xml3->row[1])) {
         	?>
-        	<br /><div onclick="javascript:gettask(<?php echo $_SESSION['id'];?>,<?php echo $cat['id'];?>);"><a href="#"><?php echo $cat['name'];?></a></div>
-            <a href ="post.php?id=<?php echo $cat['id'];?>"><input id ="newtask" type="button" name="Tugas Baru" value="New Task"/></a><br />
+        	<br /><div onclick="javascript:gettask(<?php echo $_SESSION['id'];?>,<?php echo $cat->id;?>);"><a href="#"><?php echo $cat->name;?></a></div>
+            <a href ="post.php?id=<?php echo $cat->id;?>"><input id ="newtask" type="button" name="Tugas Baru" value="New Task"/></a><br />
             <?php
-            			if ($cat['creator'] == $id) 
-            			{
+            			if ($cat->creator == $id) {
             ?>
             <form action="deletecategory.php" method="post">
-            	<input type="hidden" name="id" value="<?php echo $cat['id'];?>" />
+            	<input type="hidden" name="id" value="<?php echo $cat->id;?>" />
             	<input type="submit" value="Delete Category" />
             </form>
             <?php
@@ -96,24 +97,27 @@ $id = $_SESSION['id'];
         </div>
         <div id="rincian">
 			<?php
-			$getcat = mysqli_query($con, "SELECT * FROM categories");
-			while ($temp = mysqli_fetch_array($getcat)) {
-				$idc = $temp['id'];
-				$result3=mysqli_query($con,"SELECT * FROM `tasks` WHERE category='$idc'");
-				while ($task=mysqli_fetch_array($result3)) {
-					$task_id = $task['id'];
-					$result4=mysqli_query($con,"SELECT * FROM `assignees` WHERE task=$task_id AND member=$id");
-					if (mysqli_num_rows($result4) == 1) {
-						$assignee=mysqli_fetch_array($result4);
+			$getcat = simplexml_load_file($rest."/categories.xml");
+			foreach ($getcat as $child3) {
+				$temp = simplexml_load_file($rest."/categories/".$child3.".xml");
+				$idc = $temp->id;
+				$xml3 = simplexml_load_file($rest."/tasks?category=".$idc.".xml");
+				foreach ($xml3 as $child4) {
+					$task = simplexml_load_file($rest."/tasks/".$child4.".xml");
+					$task_id = $task->id;
+					$xml4 = simplexml_load_file($rest."/assignees?task=".$task_id."&member=".$id.".xml");
+					if (isset($xml4->row[0])) {
+						$primary = explode(" ", (string)$xml4->row[0]);
+						$assignee = simplexml_load_file($rest."/assignees/".$primary[0]."/".$primary[1].".xml");
 			?>
-			<br /><a href="rinciantugas.php?id=<?php echo $task['id'];?>"><?php echo $task['name']?></a><br />
-			Deadline: <strong><?php echo $task['deadline'];?></strong><br />
+			<br /><a href="rinciantugas.php?id=<?php echo $task->id;?>"><?php echo $task->name;?></a><br />
+			Deadline: <strong><?php echo $task->deadline;?></strong><br />
 			<?php
-						$res = mysqli_query($con,"SELECT * FROM tags WHERE tagged=$task_id");
+						$res = simplexml_load_file($rest."/tags?tagged=".$task_id.".xml");
 						$count_tag = 0;
-						while ($tagged = mysqli_fetch_array($res)) {
-							$tag[$count_tag] = $tagged['name'];
-							$count_tag++;
+						foreach ($res as $tagged) {
+							$tagatt = explode(" ", $tagged);
+							$tag[$count_tag] = $tagatt[0];
 						}
 			?>
 			Tag: <strong>
@@ -126,11 +130,11 @@ $id = $_SESSION['id'];
 			</strong>
 			<br />
 			<div id="<?php echo $task_id;?>">
-				Status : <strong><?php if ($assignee['finished'] == 1) echo 'Selesai'; else echo 'Belum selesai';?></strong><br />
-				<input name="YourChoice" type="checkbox" value="selesai" <?php if($assignee['finished']==1) echo "checked"; ?> onclick="change_status('<?php echo $task_id;?>',<?php echo $assignee['finished'];?>,<?php echo $task_id;?>)"> Selesai
+				Status : <strong><?php if ($assignee->finished == 1) echo 'Selesai'; else echo 'Belum selesai';?></strong><br />
+				<input name="YourChoice" type="checkbox" value="selesai" <?php if($assignee->finished==1) echo "checked"; ?> onclick="change_status('<?php echo $task_id;?>',<?php echo $assignee->finished;?>,<?php echo $task_id;?>)"> Selesai
 			</div>
 			<?php
-						if ($task['creator'] == $id) {
+						if ($task->creator == $id) {
 			?>
 			<form action="deletetask.php" method="post">
 				<input type="hidden" name="deltask" value="<?php echo $task_id?>" />
