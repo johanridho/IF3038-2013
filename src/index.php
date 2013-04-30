@@ -95,7 +95,7 @@ if (isset($_GET['status'])) {
 								<div class="clear" id="error-sex"></div>
 								<div class="register-label">About me</div><div class="register-td">:</div><div class="register-input"><textarea class="register-input-input" name="about" rows="5" cols="50"></textarea></div>
 								<div class="clear"></div>
-								<div class="register-submit"><input type="submit" name="register" value="Daftar" disabled="disabled" id="form-button"/></div>
+								<div class="register-submit"><input type="submit" name="register" value="Daftar" id="form-button"/></div>
 							</form>
 						</div>
 					</div>
