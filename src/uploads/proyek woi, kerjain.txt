@@ -1,0 +1,28 @@
+bikin running text di halaman akun
+
+tiap hasil tryout disimpan untuk masing masing akun
+grafik nya nilai tryout berbanding waktu
+konsultasi ngirim email ke admin juga
+
+event (tryout, acara nasional, dll)
+	nama
+	tanggal
+	deskripsi
+	tempat 
+
+pemesanan paket
+	kirim email ke yang jual paketnya
+
+matematika dasar, mat, fisika, kimia, biologi, b indo, b inggris, tpa
+terserah mau kapan, ada timernya
+to online <- harus log in dulu
+setelah login ada pilihan try out biasa ada try out terjadwal
+milih mau try out mata pelajaran yg mana (buat yg biasa), sama babnya
+setelah itu milih berapa soal
+setelah milih mata pelajaran milih jumlah soal nanti ditampilin jumlah soal yang sesuai dan dirandom. 
+dibikin panjangin ke bawah aja
+habis ngisi soal submit langsung ada nilainya, bener berapa salah berapa <- masuk record
+habis ngisi soal ada pembahasan jawaban tiap soal
+mestinya udah ada di contoh
+
+pertama beli dapet voucher, buat perpanjangan butuh kode sebelumnya

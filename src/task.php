@@ -24,8 +24,15 @@ move_uploaded_file($source,$direktori);
 
 $creator = $_SESSION['id'];
 
-$result = $client->call('taskGan',array('idTaskGan'=>$id, 'judulTask'=>$judul,'creatorTask'=>$creator,'deadlineTask'=>$deadline,'timeTask'=>$time,'timestampTask'=>$timestamp));
+$result = $client->call('taskGan',array('idTaskGan'=>$id, 'judulTask'=>$judul,'creatorTask'=>$creator,'deadlineTask'=>$deadline,'timeTask'=>$time,'timestampTask'=>$timestamp,'assignee'=>$asignee,'tag'=>$tag));
 
-header("location:rinciantugas.php?id=".$TaskId);
+header("location:rinciantugas.php?id=".$result);
 
+echo '<h2>Request</h2>';
+echo '<pre>'.htmlspecialchars($client->request, ENT_QUOTES).'</pre>';
+echo '<h2>Response</h2>';
+echo '<pre>'.htmlspecialchars($client->response, ENT_QUOTES).'</pre>';
+
+echo '<h2>Debug</h2>';
+echo '<pre>'.htmlspecialchars($client->debug_str, ENT_QUOTES).'</pre>';
 ?>

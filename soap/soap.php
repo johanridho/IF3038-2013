@@ -33,7 +33,7 @@ $server->register('registerGan',
         );
 
 $server->register('taskGan',
-        array('idTaskGan'=>'xsd:string', 'judulTask'=>'xsd:string','creatorTask'=>'xsd:string','deadlineTask'=>'xsd:string','timeTask'=>'xsd:string','timestampTask'=>'xsd:string'),
+        array('idTaskGan'=>'xsd:string', 'judulTask'=>'xsd:string','creatorTask'=>'xsd:string','deadlineTask'=>'xsd:string','timeTask'=>'xsd:string','timestampTask'=>'xsd:string','assignee'=>'xsd:string','tag'=>'xsd:string'),
         array('return' => 'xsd:string'), 
         'urn:soap', 
         'urn:soap#taskGan', 
@@ -119,14 +119,14 @@ function insertCategory($name, $user, $id)
 	return 'Add category success';
 }
 
-function taskGan($idTaskGan,$judulTask,$creatorTask,$deadlineTask, $timeTask,$timestampTask){
+function taskGan($idTaskGan,$judulTask,$creatorTask,$deadlineTask, $timeTask,$timestampTask,$assignee,$tag){
      include 'database.php';
     //$creator = $_SESSION['id'];
 
-    $mem = "SELECT * FROM tasks WHERE creator='{$idTaskGan}'";
-        $getMem = mysqli_query($con, $mem);
-        $resulta = mysqli_fetch_array($getMem);
-        $idMember = $resulta['name'];   
+    // $mem = "SELECT * FROM tasks WHERE creator='$idTaskGan'";
+    //     $getMem = mysqli_query($con, $mem);
+    //     $resulta = mysqli_fetch_array($getMem);
+    //     $idMember = $resulta['name'];   
 
     mysqli_query($con, "INSERT INTO tasks (
                     name,
@@ -138,19 +138,19 @@ function taskGan($idTaskGan,$judulTask,$creatorTask,$deadlineTask, $timeTask,$ti
                     VALUES (
                         '$judulTask',
                         '$creatorTask',
-                        '$deadline $timeTask',
+                        '$deadlineTask $timeTask',
                         '$idTaskGan',
                         '$timestampTask'
                     )");
 
-    $TaskId = "SELECT id FROM tasks WHERE name='{$judulTask}'";
+    $TaskId = "SELECT id FROM tasks WHERE name='$judulTask'";
     $GetTaskId = mysqli_query($con, $TaskId);
     $result = mysqli_fetch_array($GetTaskId);
     $idTask = $result['id'];
    // echo "<br><br>id task : ".$idTask."<br>";
 
     $member = array();
-    $member = explode(",", $asignee);
+    $member = explode(",", $assignee);
     $i=1;
     $j=count($member);
 
@@ -185,7 +185,7 @@ function taskGan($idTaskGan,$judulTask,$creatorTask,$deadlineTask, $timeTask,$ti
                     finished
                     )
                     VALUES (
-                        $creator,
+                        $creatorTask,
                         $idTask,
                         0
                     )");
@@ -199,14 +199,15 @@ function taskGan($idTaskGan,$judulTask,$creatorTask,$deadlineTask, $timeTask,$ti
     while($i<=$j)
       {
         $k=$i-1;  
+        $tagx[$k] = trim($tagx[$k]," ");
         echo "tag ke-".$i." : ".$tagx[$k]."<br>";
         mysqli_query($con, "INSERT INTO tags (
                     name,
                     tagged
                     )
                     VALUES (
-                        '$tagx[$k]',
-                        '$idTask'
+                        '{$tagx[$k]}',
+                        $idTask
                     )");
         $i++;
       }
@@ -216,8 +217,9 @@ function taskGan($idTaskGan,$judulTask,$creatorTask,$deadlineTask, $timeTask,$ti
 //    echo "<br>".$file;
 //    echo "<br>".$idTask;
 
-    header("location:rinciantugas.php?id=".$TaskId);
+    // header("location:rinciantugas.php?id=".$TaskId);
     mysqli_close($con);
+    return $TaskId;
 }//end taskGan
 
 function commentGan($memberComment,$taskComment,$timestampComment,$komentarComment){
