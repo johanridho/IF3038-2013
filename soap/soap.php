@@ -306,6 +306,8 @@ function searchAllGan($qsearch,$osearch){
 			}
 		}
         mysqli_close($con);
+
+        return $hasilALL;
 }
 
 $POST_DATA = isset($HTTP_RAW_POST_DATA) ? $HTTP_RAW_POST_DATA : '';
