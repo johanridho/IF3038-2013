@@ -14,6 +14,7 @@
 			<div class='line-konten'></div>
 		<?php
         $result = $client->call('searchAllGan',array('qsearch'=>$q, 'osearch'=>$o));
+        echo $result;
         
         ?>
 		<div class='line-konten'></div>
