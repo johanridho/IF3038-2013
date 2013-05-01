@@ -276,31 +276,33 @@ function searchAllGan($qsearch,$osearch){
     include 'database.php';
     $q=$qsearch;
     $o=$osearch;
+    $hasilALL="";
         
 		if ((strcmp($o, "All") == 0) || (strcmp($o, "User") == 0)) {
 			$qres = mysqli_query($con, "SELECT * FROM members WHERE username LIKE '%$q%' OR email LIKE '%$q%' OR fullname LIKE '%$q%' OR about LIKE '%$q%' LIMIT 0, 10");
+            
 			$count = mysqli_num_rows($qres);
-			echo "<span id='searchtype'>[User]</span><br />";
+			$hasilALL.= "<span id='searchtype'>[User]</span><br />";
 			if ($count == 0) {
-				echo "<div id='message'>No results found</div>";
+				$hasilALL.= "<div id='message'>No results found</div>";
 			} else {
-				echo '<div id="result1">';
+				$hasilALL.= '<div id="result1">';
 				while ($row=mysqli_fetch_array($qres)) {	
-                    echo '<div class="judul">';
-                    echo' <img class="search-img" align="middle" src="';
-                    echo $row['avatar'];
-                    echo ' alt="avatar" height="150" />  ';
-                    echo '<a href="profil.php?id=';
-                    echo $row['id'];
-                    echo '">';
-                    echo $row['username'];                
-                    echo '</a><br />';
-                    echo $row['fullname'];
-                    echo '</div>';		
+                    $hasilALL.= '<div class="judul">';
+                    $hasilALL.=' <img class="search-img" align="middle" src="';
+                    $hasilALL.= $row['avatar'];
+                    $hasilALL.= ' alt="avatar" height="150" />  ';
+                    $hasilALL.= '<a href="profil.php?id=';
+                    $hasilALL.= $row['id'];
+                    $hasilALL.= '">';
+                    $hasilALL.= $row['username'];                
+                    $hasilALL.= '</a><br />';
+                    $hasilALL.= $row['fullname'];
+                    $hasilALL.= '</div>';		
 				}
                 
-				echo '<input type="button" value="More" onclick="search_more('."'User'".",'".$q."'".',10);this.style.display=\'none\'">';
-				echo '</div>';
+				$hasilALL.= '<input type="button" value="More" onclick="search_more('."'User'".",'".$q."'".',10);this.style.display=\'none\'">';
+				$hasilALL.= '</div>';
 			}
 		}
         mysqli_close($con);
