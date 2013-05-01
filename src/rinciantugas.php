@@ -4,47 +4,77 @@ include 'header.php';
 $id_task= $_GET['id'];
 
 // Get task
-$result1=mysqli_query($con,"SELECT * FROM `tasks` WHERE id=$id_task");
-$task = mysqli_fetch_array($result1);
-$id_creator = $task['creator'];
+// $result1=mysqli_query($con,"SELECT * FROM `tasks` WHERE id=$id_task");
+// $task = mysqli_fetch_array($result1);
+// $id_creator = $task['creator'];
+$task = simplexml_load_file($rest."/tasks/".$id_task.".xml");
+$id_creator = $task->creator;
 
 // Get creator
-$result2=mysqli_query($con,"SELECT * FROM `members` WHERE id=$id_creator");
-$creator = mysqli_fetch_array($result2);
+// $result2=mysqli_query($con,"SELECT * FROM `members` WHERE id=$id_creator");
+// $creator = mysqli_fetch_array($result2);
+$creator = simplexml_load_file($rest."/members/".$id_creator.".xml");
 
 // Get tags
-$result5=mysqli_query($con,"SELECT * FROM `tags` WHERE tagged=$id_task");
+// $result5=mysqli_query($con,"SELECT * FROM `tags` WHERE tagged=$id_task");
+// $count_tag = 0;
+// while ($tagged = mysqli_fetch_array($result5)) {
+// 	$tag[$count_tag] = $tagged['name'];
+// 	$count_tag++;
+// }
+$result5 = simplexml_load_file($rest."/tags?tagged=".$id_task.".xml");
 $count_tag = 0;
-while ($tagged = mysqli_fetch_array($result5)) {
-	$tag[$count_tag] = $tagged['name'];
+foreach ($result5 as $tagged) {
+	$temp = explode(" ", $tagged);
+	$tag[$count_tag] = $temp[0];
 	$count_tag++;
 }
 
 // Get attachments
-$result6=mysqli_query($con,"SELECT * FROM `attachments` WHERE task=$id_task");
+// $result6=mysqli_query($con,"SELECT * FROM `attachments` WHERE task=$id_task");
+// $count_attachment = 0;
+// while ($attachment[$count_attachment] = mysqli_fetch_array($result6)) {
+// 	$count_attachment++;
+// }
+$result6 = simplexml_load_file($rest."/attachments?task=".$id_task.".xml");
 $count_attachment = 0;
-while ($attachment[$count_attachment] = mysqli_fetch_array($result6)) {
+foreach ($result6 as $child) {
+	$attachment[$count_attachment] = simplexml_load_file($rest."/attachments/".$child.".xml");
 	$count_attachment++;
 }
 
 // Get comments
-$result7=mysqli_query($con,"SELECT * FROM `comments` WHERE task=$id_task ORDER BY timestamp DESC");
+// $result7=mysqli_query($con,"SELECT * FROM `comments` WHERE task=$id_task ORDER BY timestamp DESC");
+// $count_comment = 0;
+// while ($commented = mysqli_fetch_array($result7)) {
+// 	$comment[$count_comment] = $commented;
+// 	$id_commenter = $commented['member'];
+// 	$result8=mysqli_query($con,"SELECT * FROM members WHERE id=$id_commenter");
+// 	$commenter[$count_comment] = mysqli_fetch_array($result8);
+// 	$count_comment++;
+// }
+$result7 = simplexml_load_file($rest."/comments?task=".$id_task.".xml");
 $count_comment = 0;
-while ($commented = mysqli_fetch_array($result7)) {
+foreach ($result7 as $child) {
+	$commented = simplexml_load_file($rest."/comments/".$child.".xml");
 	$comment[$count_comment] = $commented;
-	$id_commenter = $commented['member'];
-	$result8=mysqli_query($con,"SELECT * FROM members WHERE id=$id_commenter");
-	$commenter[$count_comment] = mysqli_fetch_array($result8);
+	$id_commenter = $commented->member;
+	$result8 = simplexml_load_file($rest."/members/".$id_commenter.".xml");
+	$commenter[$count_comment] = $result8;
 	$count_comment++;
 }
 
 $id_user = $_SESSION['id'];
-$res = mysqli_query($con, "SELECT * 
-						FROM assignees 
-						WHERE member=$id_user 
-						AND task=$id_task");
-$assignee = mysqli_fetch_array($res);
+// $res = mysqli_query($con, "SELECT * 
+// 						FROM assignees 
+// 						WHERE member=$id_user 
+// 						AND task=$id_task");
+//$assignee = mysqli_fetch_array($res);
+$res = simplexml_load_file($rest."/assignees?member=".$id_user."&task=".$id_task.".xml");
+$tmp = str_replace(" ", "/", $res->row[0]);
+$assignee = simplexml_load_file($rest."/assignees/".$tmp.".xml");
 ?>
+;
 <!-- created by Enjella-->
 <div id="main">
 	<div id="konten">
@@ -52,23 +82,23 @@ $assignee = mysqli_fetch_array($res);
 		</div>
 		<div class="tengah">
 			<div class="judul">
-				<?php echo $task['name'];?>
+				<?php echo $task->name;?>
 			</div>
 			<div class="isi">
 			</div>
             
 			<div class="detail">
 				<div class="byon">
-					Posted by <strong><span class="by"><?php echo $creator['username'];?></span></strong> on <strong><?php echo $task['timestamp'];?></strong>
+					Posted by <strong><span class="by"><?php echo $creator->username;?></span></strong> on <strong><?php echo $task->timestamp;?></strong>
 				</div>
 				<div class="byon" id="<?php echo $id_task;?>">
-					Status : <strong><?php if ($assignee['finished'] == 1) echo 'Selesai'; else echo 'Belum selesai';?></strong><br />
-					<input name="YourChoice" type="checkbox" value="selesai" <?php if($assignee['finished']==1) echo "checked"; ?> onclick="change_status('<?php echo $id_task;?>',<?php echo $assignee['finished'];?>,<?php echo $id_task;?>)"> Selesai
+					Status : <strong><?php if ($assignee->finished == 1) echo 'Selesai'; else echo 'Belum selesai';?></strong><br />
+					<input name="YourChoice" type="checkbox" value="selesai" <?php if($assignee->finished==1) echo "checked"; ?> onclick="change_status('<?php echo $id_task;?>',<?php echo $assignee->finished;?>,<?php echo $id_task;?>)"> Selesai
 				</div>
 				<div id="done">
 					<br />
 					<div class="byon">
-						Deadline : <strong><?php echo $task['deadline'];?></strong>
+						Deadline : <strong><?php echo $task->deadline;?></strong>
 					</div>
 					<br />
 					<div class="byon">
@@ -76,18 +106,27 @@ $assignee = mysqli_fetch_array($res);
 						<?php
 						unset($assignee);
 						// Get assignee
-						$result3=mysqli_query($con,"SELECT * FROM `assignees` WHERE task=$id_task");
+						// $result3=mysqli_query($con,"SELECT * FROM `assignees` WHERE task=$id_task");
+						// $count_assignee = 0;
+						// while ($assigned = mysqli_fetch_array($result3)) {
+						// 	$id_assignee = $assigned['member'];
+						// 	$result4=mysqli_query($con,"SELECT * FROM `members` WHERE id=$id_assignee");
+						// 	$assignee[$count_assignee] = mysqli_fetch_array($result4);
+						// 	$count_assignee++;
+						// }
+						$result3 = simplexml_load_file($rest."/assignees?task=".$id_task.".xml");
 						$count_assignee = 0;
-						while ($assigned = mysqli_fetch_array($result3)) {
-							$id_assignee = $assigned['member'];
-							$result4=mysqli_query($con,"SELECT * FROM `members` WHERE id=$id_assignee");
-							$assignee[$count_assignee] = mysqli_fetch_array($result4);
+						foreach ($result3 as $child2) {
+							$assigned = simplexml_load_file($rest."/assignees/".str_replace(" ", "/", $child2).".xml");
+							$id_assignee = $assigned->member;
+							$result4 = simplexml_load_file($rest."/members/".$id_assignee.".xml");
+							$assignee[$count_assignee] = $result4;
 							$count_assignee++;
 						}
 
 						for ($i = 0; $i < $count_assignee; $i++) {
 							$current=$assignee[$i];
-							echo $current['username'];
+							echo $current->username;
 							if ($i < $count_assignee - 1) echo ", ";
 						}
 						?>
@@ -106,7 +145,7 @@ $assignee = mysqli_fetch_array($res);
 					</div>
 					<br />
 					<?php
-					if ($task['creator'] == $_SESSION['id']) {
+					if ($task->creator == $_SESSION['id']) {
 					?>
 					<div class="count"><input type="button" name="edit" onclick="edit_task()" value="Edit"/></div>
 					<?php
@@ -118,7 +157,7 @@ $assignee = mysqli_fetch_array($res);
 					<div class="byon">
 						<?php
 						$partdead = array();
-						$partdead = explode(" ", $task['deadline']);
+						$partdead = explode(" ", $task->deadline);
 						?>
 						<div id="left">
 							Deadline : <input type="text" name="inputdeadline" id="form-tgl" value="<?php echo $partdead[0];?>"/>
@@ -173,7 +212,7 @@ $assignee = mysqli_fetch_array($res);
 						echo " value='";
 						for ($i = 0; $i < $count_assignee; $i++) {
 							$current=$assignee[$i];
-							echo $current['username'];
+							echo $current->username;
 							if ($i < $count_assignee - 1) echo ", ";
 						}
 						echo "' ";
@@ -211,23 +250,23 @@ $assignee = mysqli_fetch_array($res);
 				<?php
 				for ($i = 0; $i < $count_attachment; $i++) {
 					$current = $attachment[$i];
-					if (strcmp($current['filetype'],"file") == 0) {
-						$pos = strrpos($current['path'],"/");
+					if (strcmp($current->filetype,"file") == 0) {
+						$pos = strrpos($current->path,"/");
 						if ($pos === false) {
-							$filename = $current['path'];
+							$filename = $current->path;
 						} else {
-							$filename = substr($current['path'],$pos + 1);
+							$filename = substr($current->path,$pos + 1);
 						}
 				?>
 				<a href="<?php echo $current['path'];?>"><?php echo $filename;?></a><br />
 				<?php
-					} else if (strcmp($current['filetype'],"image") == 0) {
+					} else if (strcmp($current->filetype,"image") == 0) {
 				?>
-				<img src="<?php echo $current['path'];?>" /><br />
+				<img src="<?php echo $current->path;?>" /><br />
 				<?php	
-					} else if (strcmp($current['filetype'],"video") == 0) {
+					} else if (strcmp($current->filetype,"video") == 0) {
 				?>
-				<video width="320" height="240" controls src="<?php echo $current['path'];?>"></video><br />
+				<video width="320" height="240" controls src="<?php echo $current->path;?>"></video><br />
 				<?php	
 					}
 				}
@@ -252,16 +291,16 @@ $assignee = mysqli_fetch_array($res);
 					for ($i = 0; $i < $count_comment; $i++) {
 						$current1=$comment[$i];
 						$current2=$commenter[$i];
-						echo '<div class="komen-avatar"><img src="'.$current2['avatar'].'" height="24"/></div>';
-						echo '<div class="komen-nama">'.$current2['fullname'].'</div>';
-						echo '<div class="komen-tgl">'.$current1['timestamp'].'</div>';
-						echo '<div class="komen-isi">'.$current1['comment'].'</div>';
-						if ($_SESSION['id'] == $current2['id']) {
-							echo '<input type="button" name="delete" value="Delete" onclick="delete_comment('.$id_task.",".$current1['id'].')"/>';
+						echo '<div class="komen-avatar"><img src="'.$current2->avatar.'" height="24"/></div>';
+						echo '<div class="komen-nama">'.$current2->fullname.'</div>';
+						echo '<div class="komen-tgl">'.$current1->timestamp.'</div>';
+						echo '<div class="komen-isi">'.$current1->comment.'</div>';
+						if ($_SESSION['id'] == (string)$current2->id) {
+							echo '<input type="button" name="delete" value="Delete" onclick="delete_comment('.$id_task.",".$current1->id.')"/>';
 						}
 						echo '<div class="line-konten"></div>';
 					}
-					echo '<input type="button" value="More" onclick="comment_more('.$task['id'].',10);this.style.display=\'none\'">';
+					echo '<input type="button" value="More" onclick="comment_more('.$task->id.',10);this.style.display=\'none\'">';
 					?>
 				</div>
 				

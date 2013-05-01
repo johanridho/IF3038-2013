@@ -27,8 +27,7 @@ $rest = "http://phprestsql.ap01.aws.af.cm"
 			// $task = mysqli_fetch_array($result);
 			// echo strtoupper($task['name']);
 			$xml = simplexml_load_file("http://phprestsql.ap01.aws.af.cm/tasks?id=".$id_task.".xml");
-			$uri = "http://phprestsql.ap01.aws.af.cm/tasks/".$xml->row[0].".xml";
-			$xml = simplexml_load_file($uri);
+			$xml = simplexml_load_file("http://phprestsql.ap01.aws.af.cm/tasks/".$xml->row[0].".xml");
 			echo strtoupper((string)$xml->name);
 		} else if (strcmp($uri,"post.php") == 0) {
 			echo 'ADD TASK';
