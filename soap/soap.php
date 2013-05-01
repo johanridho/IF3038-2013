@@ -273,6 +273,7 @@ function commentGan($memberComment,$taskComment,$timestampComment,$komentarComme
 }
 
 function searchAllGan($qsearch,$osearch){
+    include 'database.php';
     $q=$qsearch;
     $o=$osearch;
         
@@ -301,7 +302,8 @@ function searchAllGan($qsearch,$osearch){
 				echo '<input type="button" value="More" onclick="search_more('."'User'".",'".$q."'".',10);this.style.display=\'none\'">';
 				echo '</div>';
 			}
-		}		
+		}
+        mysqli_close($con);
 }
 
 $POST_DATA = isset($HTTP_RAW_POST_DATA) ? $HTTP_RAW_POST_DATA : '';
