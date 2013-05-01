@@ -1,5 +1,5 @@
 <?php include 'header.php';?>
-<?include 'soap.php';?>
+<?php include 'soap.php';?>
 
 <div id="main">
 	<div id="konten">
