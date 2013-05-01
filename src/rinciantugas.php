@@ -4,24 +4,13 @@ include 'header.php';
 $id_task= $_GET['id'];
 
 // Get task
-// $result1=mysqli_query($con,"SELECT * FROM `tasks` WHERE id=$id_task");
-// $task = mysqli_fetch_array($result1);
-// $id_creator = $task['creator'];
 $task = simplexml_load_file($rest."/tasks/".$id_task.".xml");
 $id_creator = $task->creator;
 
 // Get creator
-// $result2=mysqli_query($con,"SELECT * FROM `members` WHERE id=$id_creator");
-// $creator = mysqli_fetch_array($result2);
 $creator = simplexml_load_file($rest."/members/".$id_creator.".xml");
 
 // Get tags
-// $result5=mysqli_query($con,"SELECT * FROM `tags` WHERE tagged=$id_task");
-// $count_tag = 0;
-// while ($tagged = mysqli_fetch_array($result5)) {
-// 	$tag[$count_tag] = $tagged['name'];
-// 	$count_tag++;
-// }
 $result5 = simplexml_load_file($rest."/tags?tagged=".$id_task.".xml");
 $count_tag = 0;
 foreach ($result5 as $tagged) {
@@ -31,11 +20,6 @@ foreach ($result5 as $tagged) {
 }
 
 // Get attachments
-// $result6=mysqli_query($con,"SELECT * FROM `attachments` WHERE task=$id_task");
-// $count_attachment = 0;
-// while ($attachment[$count_attachment] = mysqli_fetch_array($result6)) {
-// 	$count_attachment++;
-// }
 $result6 = simplexml_load_file($rest."/attachments?task=".$id_task.".xml");
 $count_attachment = 0;
 foreach ($result6 as $child) {
@@ -44,15 +28,6 @@ foreach ($result6 as $child) {
 }
 
 // Get comments
-// $result7=mysqli_query($con,"SELECT * FROM `comments` WHERE task=$id_task ORDER BY timestamp DESC");
-// $count_comment = 0;
-// while ($commented = mysqli_fetch_array($result7)) {
-// 	$comment[$count_comment] = $commented;
-// 	$id_commenter = $commented['member'];
-// 	$result8=mysqli_query($con,"SELECT * FROM members WHERE id=$id_commenter");
-// 	$commenter[$count_comment] = mysqli_fetch_array($result8);
-// 	$count_comment++;
-// }
 $result7 = simplexml_load_file($rest."/comments?task=".$id_task.".xml");
 $count_comment = 0;
 foreach ($result7 as $child) {
@@ -65,11 +40,6 @@ foreach ($result7 as $child) {
 }
 
 $id_user = $_SESSION['id'];
-// $res = mysqli_query($con, "SELECT * 
-// 						FROM assignees 
-// 						WHERE member=$id_user 
-// 						AND task=$id_task");
-//$assignee = mysqli_fetch_array($res);
 $res = simplexml_load_file($rest."/assignees?member=".$id_user."&task=".$id_task.".xml");
 $tmp = str_replace(" ", "/", $res->row[0]);
 $assignee = simplexml_load_file($rest."/assignees/".$tmp.".xml");
@@ -106,14 +76,6 @@ $assignee = simplexml_load_file($rest."/assignees/".$tmp.".xml");
 						<?php
 						unset($assignee);
 						// Get assignee
-						// $result3=mysqli_query($con,"SELECT * FROM `assignees` WHERE task=$id_task");
-						// $count_assignee = 0;
-						// while ($assigned = mysqli_fetch_array($result3)) {
-						// 	$id_assignee = $assigned['member'];
-						// 	$result4=mysqli_query($con,"SELECT * FROM `members` WHERE id=$id_assignee");
-						// 	$assignee[$count_assignee] = mysqli_fetch_array($result4);
-						// 	$count_assignee++;
-						// }
 						$result3 = simplexml_load_file($rest."/assignees?task=".$id_task.".xml");
 						$count_assignee = 0;
 						foreach ($result3 as $child2) {
@@ -287,7 +249,7 @@ $assignee = simplexml_load_file($rest."/assignees/".$tmp.".xml");
 				<div class="line-konten"></div>
 				<div id="lkomen">
 					<?php
-					if ($count_comment > 10) $count_comment = 10;
+					// if ($count_comment > 10) $count_comment = 10;
 					for ($i = 0; $i < $count_comment; $i++) {
 						$current1=$comment[$i];
 						$current2=$commenter[$i];
@@ -300,7 +262,7 @@ $assignee = simplexml_load_file($rest."/assignees/".$tmp.".xml");
 						}
 						echo '<div class="line-konten"></div>';
 					}
-					echo '<input type="button" value="More" onclick="comment_more('.$task->id.',10);this.style.display=\'none\'">';
+					// echo '<input type="button" value="More" onclick="comment_more('.$task->id.',10);this.style.display=\'none\'">';
 					?>
 				</div>
 				

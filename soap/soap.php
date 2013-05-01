@@ -243,11 +243,12 @@ function commentGan($memberComment,$taskComment,$timestampComment,$komentarComme
         $commenter[$count_comment] = mysqli_fetch_array($result8);
         $count_comment++;
     }
-    if ($count_comment > 10) $count_comment = 10;
+    // if ($count_comment > 10) $count_comment = 10;
+    $hasilComment="";
     for ($i = 0; $i < $count_comment; $i++) {
         $current1=$comment[$i];
         $current2=$commenter[$i];
-        $hasilComment='<div class="komen-avatar"><img src="'.$current2['avatar'].'" height="24"/></div>';
+        $hasilComment.='<div class="komen-avatar"><img src="'.$current2['avatar'].'" height="24"/></div>';
         $hasilComment.='<div class="komen-nama">'.$current2['fullname'].'</div>';
         $hasilComment.='<div class="komen-tgl">'.$current1['timestamp'].'</div>';
         $hasilComment.='<div class="komen-isi">'.$current1['comment'].'</div>';
@@ -256,9 +257,9 @@ function commentGan($memberComment,$taskComment,$timestampComment,$komentarComme
         }
         $hasilComment.='<div class="line-konten"></div>';
     }
-    $hasilComment.='<input type="button" value="More" onclick="comment_more('.$task['id'].',10);this.style.display=\'none\'">';
-    return $hasilComment;
+    // $hasilComment.='<input type="button" value="More" onclick="comment_more('.$task['id'].',10);this.style.display=\'none\'">';
     mysqli_close($con);
+    return $hasilComment;
 }
 
 
