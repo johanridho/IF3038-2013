@@ -8,8 +8,9 @@ else
 {
 	$member_id = $_SESSION['id'];
 }
-$result = mysqli_query($con, "SELECT * FROM `members` WHERE id=$member_id");
-$member=mysqli_fetch_array($result);
+// $result = mysqli_query($con, "SELECT * FROM `members` WHERE id=$member_id");
+// $member=mysqli_fetch_array($result);
+$member = simplexml_load_file($rest."/members/".$member_id.".xml");
 ?>
 
 <div id="main">
@@ -22,50 +23,72 @@ $member=mysqli_fetch_array($result);
 					PROFIL
 				</div>
 				<div class="isi">
-					<img src=<?php echo $member['avatar'];?> alt="avatar" width="150"/>
+					<img src=<?php echo $member->avatar;?> alt="avatar" width="150"/>
 				</div>
 				
 				<div id="profiledetail">
-					<div class="profilefont"> Username		: <?php echo $member['username'];?> </div>
-					<div class="profilefont"> Nama Lengkap	: <?php echo $member['fullname'];?> </div>
-					<div class="profilefont"> Tanggal lahir : <?php echo $member['birthdate'];?> </div>
-					<div class="profilefont"> Email			: <?php echo $member['email'];?> </div>
-					<div class="profilefont"> Jenis Kelamin : <?php if ($member['gender'] == 'M') echo 'laki-laki'; else echo 'perempuan';?> </div>
+					<div class="profilefont"> Username		: <?php echo $member->username;?> </div>
+					<div class="profilefont"> Nama Lengkap	: <?php echo $member->fullname;?> </div>
+					<div class="profilefont"> Tanggal lahir : <?php echo $member->birthdate;?> </div>
+					<div class="profilefont"> Email			: <?php echo $member->email;?> </div>
+					<div class="profilefont"> Jenis Kelamin : <?php if ($member->gender == 'M') echo 'laki-laki'; else echo 'perempuan';?> </div>
 		            <div class="profilefont"> Tugas :<br/>
 		            Sudah selesai:
 		            <?php 
-						$result1=mysqli_query($con,"SELECT * FROM `assignees` WHERE member=$member_id AND finished=1");
-						$count=mysqli_num_rows($result1);
-						if ($count > 0) {
+						// $result1=mysqli_query($con,"SELECT * FROM `assignees` WHERE member=$member_id AND finished=1");
+						// $count=mysqli_num_rows($result1);
+						// if ($count > 0) {
+						// 	echo '<br /><ol>';
+						// 	while ($row=mysqli_fetch_array($result1)) {
+						// 		$task_id=$row['task'];
+						// 		$result2=mysqli_query($con,"SELECT * FROM tasks WHERE id=$task_id");
+						// 		$task=mysqli_fetch_array($result2);
+						// 		echo '<li><a href="rinciantugas.php?id='.$task_id.'">'.$task['name'].'</a></li>';
+						// 	}
+						// 	echo '</ol>';
+						// }
+						$result1 = simplexml_load_file($rest."/assignees?member=".$member_id."&finished=1.xml");
+						if (isset($result1->row[0])) {
 							echo '<br /><ol>';
-							while ($row=mysqli_fetch_array($result1)) {
-								$task_id=$row['task'];
-								$result2=mysqli_query($con,"SELECT * FROM tasks WHERE id=$task_id");
-								$task=mysqli_fetch_array($result2);
-								echo '<li><a href="rinciantugas.php?id='.$task_id.'">'.$task['name'].'</a></li>';
+							foreach ($result1 as $child) {
+								$row = simplexml_load_file($rest."/assignees/".str_replace(" ", "/", $child).".xml");
+								$task_id = $row->task;
+								$task = simplexml_load_file($rest."/tasks/".$task_id.".xml");
+								echo '<li><a href="rinciantugas.php?id='.$task_id.'">'.$task->name.'</a></li>';
 							}
 							echo '</ol>';
 						}
 		            ?>
 		            Belum selesai:
 		            <?php 
-						$result1=mysqli_query($con,"SELECT * FROM `assignees` WHERE member=$member_id AND finished=0");
-						$count=mysqli_num_rows($result1);
-						if ($count > 0) {
+						// $result1=mysqli_query($con,"SELECT * FROM `assignees` WHERE member=$member_id AND finished=0");
+						// $count=mysqli_num_rows($result1);
+						// if ($count > 0) {
+						// 	echo '<br /><ol>';
+						// 	while ($row=mysqli_fetch_array($result1)) {
+						// 		$task_id=$row['task'];
+						// 		$result2=mysqli_query($con,"SELECT * FROM tasks WHERE id=$task_id");
+						// 		$task=mysqli_fetch_array($result2);
+						// 		echo '<li><a href="rinciantugas.php?id='.$task_id.'">'.$task['name'].'</a></li>';
+						// 	}
+						// 	echo '</ol>';
+						// }
+			            $result1 = simplexml_load_file($rest."/assignees?member=".$member_id."&finished=0.xml");
+						if (isset($result1->row[0])) {
 							echo '<br /><ol>';
-							while ($row=mysqli_fetch_array($result1)) {
-								$task_id=$row['task'];
-								$result2=mysqli_query($con,"SELECT * FROM tasks WHERE id=$task_id");
-								$task=mysqli_fetch_array($result2);
-								echo '<li><a href="rinciantugas.php?id='.$task_id.'">'.$task['name'].'</a></li>';
+							foreach ($result1 as $child) {
+								$row = simplexml_load_file($rest."/assignees/".str_replace(" ", "/", $child).".xml");
+								$task_id = $row->task;
+								$task = simplexml_load_file($rest."/tasks/".$task_id.".xml");
+								echo '<li><a href="rinciantugas.php?id='.$task_id.'">'.$task->name.'</a></li>';
 							}
 							echo '</ol>';
 						}
 		            ?>
 		            </div>
-					<div class="profilefont"> About me		: <?php echo $member['about'];?> </div>
+					<div class="profilefont"> About me		: <?php echo $member->about;?> </div>
 					<?php
-					if ($member['id'] == $_SESSION['id'])
+					if ($member->id == $_SESSION['id'])
 					{
 					?>
 					<div class="register-submit"><input type="button" name="register" value="Edit" id="form-button" onclick="edit_task();" /></div>
