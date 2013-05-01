@@ -52,6 +52,16 @@ $server->register('commentGan',
         'Task'        
         );
 
+$server->register('searchAllGan',
+        array('qsearch'=>'xsd:string', 'osearch'=>'xsd:string'),
+        array('return' => 'xsd:string'), 
+        'urn:soap', 
+        'urn:soap#taskGan', 
+        'rpc', 
+        'encoded', 
+        'Task'        
+        );
+
 function hello($name)
 {
 	return 'Hello, '. $name;
@@ -262,6 +272,37 @@ function commentGan($memberComment,$taskComment,$timestampComment,$komentarComme
     return $hasilComment;
 }
 
+function searchAllGan($qsearch,$osearch){
+    $q=$qsearch;
+    $o=$osearch;
+        
+		if ((strcmp($o, "All") == 0) || (strcmp($o, "User") == 0)) {
+			$qres = mysqli_query($con, "SELECT * FROM members WHERE username LIKE '%$q%' OR email LIKE '%$q%' OR fullname LIKE '%$q%' OR about LIKE '%$q%' LIMIT 0, 10");
+			$count = mysqli_num_rows($qres);
+			echo "<span id='searchtype'>[User]</span><br />";
+			if ($count == 0) {
+				echo "<div id='message'>No results found</div>";
+			} else {
+				echo '<div id="result1">';
+				while ($row=mysqli_fetch_array($qres)) {	
+                    echo '<div class="judul">';
+                    echo' <img class="search-img" align="middle" src="';
+                    echo $row['avatar'];
+                    echo ' alt="avatar" height="150" />  ';
+                    echo '<a href="profil.php?id=';
+                    echo $row['id'];
+                    echo '">';
+                    echo $row['username'];                
+                    echo '</a><br />';
+                    echo $row['fullname'];
+                    echo '</div>';		
+				}
+                
+				echo '<input type="button" value="More" onclick="search_more('."'User'".",'".$q."'".',10);this.style.display=\'none\'">';
+				echo '</div>';
+			}
+		}		
+}
 
 $POST_DATA = isset($HTTP_RAW_POST_DATA) ? $HTTP_RAW_POST_DATA : '';
 $server->service($POST_DATA);
