@@ -35,18 +35,6 @@ $member = simplexml_load_file($rest."/members/".$member_id.".xml");
 		            <div class="profilefont"> Tugas :<br/>
 		            Sudah selesai:
 		            <?php 
-						// $result1=mysqli_query($con,"SELECT * FROM `assignees` WHERE member=$member_id AND finished=1");
-						// $count=mysqli_num_rows($result1);
-						// if ($count > 0) {
-						// 	echo '<br /><ol>';
-						// 	while ($row=mysqli_fetch_array($result1)) {
-						// 		$task_id=$row['task'];
-						// 		$result2=mysqli_query($con,"SELECT * FROM tasks WHERE id=$task_id");
-						// 		$task=mysqli_fetch_array($result2);
-						// 		echo '<li><a href="rinciantugas.php?id='.$task_id.'">'.$task['name'].'</a></li>';
-						// 	}
-						// 	echo '</ol>';
-						// }
 						$result1 = simplexml_load_file($rest."/assignees?member=".$member_id."&finished=1.xml");
 						if (isset($result1->row[0])) {
 							echo '<br /><ol>';
@@ -61,19 +49,7 @@ $member = simplexml_load_file($rest."/members/".$member_id.".xml");
 		            ?>
 		            Belum selesai:
 		            <?php 
-						// $result1=mysqli_query($con,"SELECT * FROM `assignees` WHERE member=$member_id AND finished=0");
-						// $count=mysqli_num_rows($result1);
-						// if ($count > 0) {
-						// 	echo '<br /><ol>';
-						// 	while ($row=mysqli_fetch_array($result1)) {
-						// 		$task_id=$row['task'];
-						// 		$result2=mysqli_query($con,"SELECT * FROM tasks WHERE id=$task_id");
-						// 		$task=mysqli_fetch_array($result2);
-						// 		echo '<li><a href="rinciantugas.php?id='.$task_id.'">'.$task['name'].'</a></li>';
-						// 	}
-						// 	echo '</ol>';
-						// }
-			            $result1 = simplexml_load_file($rest."/assignees?member=".$member_id."&finished=0.xml");
+						$result1 = simplexml_load_file($rest."/assignees?member=".$member_id."&finished=0.xml");
 						if (isset($result1->row[0])) {
 							echo '<br /><ol>';
 							foreach ($result1 as $child) {

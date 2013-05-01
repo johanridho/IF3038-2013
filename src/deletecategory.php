@@ -1,11 +1,16 @@
 <?php
 include 'session.php';
-include 'database.php';
+
+$rest = "http://phprestsql.ap01.aws.af.cm";
 
 $cat_id = $_POST['id'];
-mysqli_query($con, "DELETE FROM categories 
-				WHERE id=$cat_id");
+$ch = curl_init($rest."/categories/".$cat_id);
+curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+curl_setopt($ch, CURLOPT_HEADER, 0);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
+$response = curl_exec($ch);
+var_dump($response);
 
-mysqli_close($con);
 header("location:dashboard.php");
 ?>
